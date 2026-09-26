@@ -56,6 +56,40 @@ else:
     print("Revisar masks")
 
 
+
+
+# agregar ruido poisson
+N = 40
+seed_numero = 12
+
+np.random.seed(seed_numero)
+
+imagen_ruido = np.random.poisson(N * imagen_ideal) / N
+
+
+
+# revisar media y varianza
+media_background = np.mean(imagen_ruido[mask_background])
+media_square = np.mean(imagen_ruido[mask_square])
+media_circle = np.mean(imagen_ruido[mask_circle])
+
+var_background = np.var(imagen_ruido[mask_background])
+var_square = np.var(imagen_ruido[mask_square])
+var_circle = np.var(imagen_ruido[mask_circle])
+
+print("\nRuido Poisson")
+print("Media background:", media_background)
+print("Media square:", media_square)
+print("Media circle:", media_circle)
+
+print("Var background:", var_background)
+print("Var square:", var_square)
+print("Var circle:", var_circle)
+
+
+
+
+
 print("Background:", count_background)
 print("Square:", count_square)
 print("Circle:", count_circle)
@@ -87,6 +121,28 @@ plt.tight_layout()
 
 plt.savefig(
     "resultados/pregunta1/regiones_sinteticas.png",
+    dpi=150
+)
+
+plt.show()
+
+# comparar imagen ideal y ruido
+plt.figure(figsize=(10, 4))
+
+plt.subplot(1, 2, 1)
+plt.imshow(imagen_ideal, cmap="gray", vmin=0, vmax=1)
+plt.title("Imagen ideal")
+plt.axis("off")
+
+plt.subplot(1, 2, 2)
+plt.imshow(imagen_ruido, cmap="gray", vmin=0, vmax=1)
+plt.title("Ruido Poisson N=40")
+plt.axis("off")
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/ruido_poisson.png",
     dpi=150
 )
 
