@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.signal import convolve2d
 
 
 tamano = 256
@@ -95,6 +96,58 @@ print("Square:", count_square)
 print("Circle:", count_circle)
 
 
+
+
+def crear_kernel_gaussiano(sigma):
+
+    # radio de 3 sigma
+    radio = int(np.ceil(3 * sigma))
+
+    x = np.arange(-radio, radio + 1)
+    y = np.arange(-radio, radio + 1)
+
+    xx, yy = np.meshgrid(x, y)
+
+    kernel = np.exp(-(xx**2 + yy**2) / (2 * sigma**2))
+
+    # normalizar
+    kernel = kernel / np.sum(kernel)
+
+    return kernel
+
+
+# para probar kernel gaussiano
+sigma_prueba = 1.3
+
+kernel_gauss = crear_kernel_gaussiano(sigma_prueba)
+
+print("\nKernel Gaussiano")
+print("Sigma:", sigma_prueba)
+print("Tamano:", kernel_gauss.shape)
+print("Suma:", np.sum(kernel_gauss))
+
+
+# filtro
+imagen_filtrada = convolve2d(
+    imagen_ruido,
+    kernel_gauss,
+    mode="same",
+    boundary="symm"
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 plt.figure(figsize=(10, 8))
 
 plt.subplot(2, 2, 1)
@@ -143,6 +196,33 @@ plt.tight_layout()
 
 plt.savefig(
     "resultados/pregunta1/ruido_poisson.png",
+    dpi=150
+)
+
+plt.show()
+
+# comparar filtro gaussiano
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 3, 1)
+plt.imshow(imagen_ideal, cmap="gray", vmin=0, vmax=1)
+plt.title("Imagen ideal")
+plt.axis("off")
+
+plt.subplot(1, 3, 2)
+plt.imshow(imagen_ruido, cmap="gray", vmin=0, vmax=1)
+plt.title("Ruido Poisson")
+plt.axis("off")
+
+plt.subplot(1, 3, 3)
+plt.imshow(imagen_filtrada, cmap="gray", vmin=0, vmax=1)
+plt.title("Gaussiano sigma=1.3")
+plt.axis("off")
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/prueba_gaussiano.png",
     dpi=150
 )
 
