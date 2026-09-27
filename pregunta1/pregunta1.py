@@ -221,9 +221,108 @@ else:
 
 
 
+# probar varios sigma
+sigma_values = [0]
+
+rmse_global_values = [rmse_ruido_global]
+rmse_background_values = [rmse_ruido_background]
+rmse_square_values = [rmse_ruido_square]
+rmse_circle_values = [rmse_ruido_circle]
 
 
+for sigma in np.arange(0.1, 4.1, 0.1):
 
+    kernel = crear_kernel_gaussiano(sigma)
+
+    imagen_sigma = convolve2d(
+        imagen_ruido,
+        kernel,
+        mode="same",
+        boundary="symm"
+    )
+
+    error_global = calcular_rmse(
+        imagen_ideal,
+        imagen_sigma
+    )
+
+    error_background = calcular_rmse(
+        imagen_ideal,
+        imagen_sigma,
+        mask_background
+    )
+
+    error_square = calcular_rmse(
+        imagen_ideal,
+        imagen_sigma,
+        mask_square
+    )
+
+    error_circle = calcular_rmse(
+        imagen_ideal,
+        imagen_sigma,
+        mask_circle
+    )
+
+    sigma_values.append(sigma)
+
+    rmse_global_values.append(error_global)
+    rmse_background_values.append(error_background)
+    rmse_square_values.append(error_square)
+    rmse_circle_values.append(error_circle)
+
+
+# sacar minimos
+min_global = min(rmse_global_values)
+indice_global = rmse_global_values.index(min_global)
+sigma_min_global = sigma_values[indice_global]
+
+min_background = min(rmse_background_values)
+indice_background = rmse_background_values.index(min_background)
+sigma_min_background = sigma_values[indice_background]
+
+min_square = min(rmse_square_values)
+indice_square = rmse_square_values.index(min_square)
+sigma_min_square = sigma_values[indice_square]
+
+min_circle = min(rmse_circle_values)
+indice_circle = rmse_circle_values.index(min_circle)
+sigma_min_circle = sigma_values[indice_circle]
+
+
+print("\nMinimos RMSE")
+
+print("Global:")
+print("Sigma =", sigma_min_global)
+print("RMSE =", min_global)
+
+print("\nBackground:")
+print("Sigma =", sigma_min_background)
+print("RMSE =", min_background)
+
+print("\nSquare:")
+print("Sigma =", sigma_min_square)
+print("RMSE =", min_square)
+
+print("\nCircle:")
+print("Sigma =", sigma_min_circle)
+print("RMSE =", min_circle)
+
+
+# revisar limite del rango
+sigma_maximo = sigma_values[-1]
+
+if sigma_min_global == sigma_maximo:
+    print("\nRevisar rango para global")
+
+if sigma_min_background == sigma_maximo:
+    print("Revisar rango para background")
+
+if sigma_min_square == sigma_maximo:
+    print("Revisar rango para square")
+
+if sigma_min_circle == sigma_maximo:
+    print("Revisar rango para circle")
 
 
 
@@ -308,6 +407,92 @@ plt.tight_layout()
 
 plt.savefig(
     "resultados/pregunta1/prueba_gaussiano.png",
+    dpi=150
+)
+
+plt.show()
+
+
+# curvas rmse
+plt.figure(figsize=(9, 6))
+
+plt.plot(
+    sigma_values,
+    rmse_background_values,
+    label="Background"
+)
+
+plt.plot(
+    sigma_values,
+    rmse_square_values,
+    label="Square"
+)
+
+plt.plot(
+    sigma_values,
+    rmse_circle_values,
+    label="Circle"
+)
+
+plt.plot(
+    sigma_values,
+    rmse_global_values,
+    label="Global"
+)
+
+plt.scatter(
+    sigma_min_background,
+    min_background,
+    marker="o"
+)
+
+plt.scatter(
+    sigma_min_square,
+    min_square,
+    marker="o"
+)
+
+plt.scatter(
+    sigma_min_circle,
+    min_circle,
+    marker="o"
+)
+
+plt.scatter(
+    sigma_min_global,
+    min_global,
+    marker="x",
+    s=70
+)
+
+datos_rmse = np.column_stack((
+    sigma_values,
+    rmse_global_values,
+    rmse_background_values,
+    rmse_square_values,
+    rmse_circle_values
+))
+
+np.savetxt(
+    "resultados/pregunta1/rmse_sigma.csv",
+    datos_rmse,
+    delimiter=",",
+    header="sigma,global,background,square,circle",
+    comments=""
+)
+
+
+
+plt.xlabel("Sigma")
+plt.ylabel("RMSE")
+plt.title("RMSE segun sigma")
+plt.grid(alpha=0.3)
+plt.legend()
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/rmse_sigma.png",
     dpi=150
 )
 
