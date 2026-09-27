@@ -138,6 +138,91 @@ imagen_filtrada = convolve2d(
 
 
 
+def calcular_rmse(imagen_ref, imagen_test, mask=None):
+
+    if mask is None:
+        diferencia = imagen_ref - imagen_test
+    else:
+        diferencia = imagen_ref[mask] - imagen_test[mask]
+
+    error = np.sqrt(np.mean(diferencia**2))
+
+    return error
+
+# rmse imagen con ruido
+rmse_ruido_global = calcular_rmse(
+    imagen_ideal,
+    imagen_ruido
+)
+
+rmse_ruido_background = calcular_rmse(
+    imagen_ideal,
+    imagen_ruido,
+    mask_background
+)
+
+rmse_ruido_square = calcular_rmse(
+    imagen_ideal,
+    imagen_ruido,
+    mask_square
+)
+
+rmse_ruido_circle = calcular_rmse(
+    imagen_ideal,
+    imagen_ruido,
+    mask_circle
+)
+
+
+# rmse imagen filtrada
+rmse_gauss_global = calcular_rmse(
+    imagen_ideal,
+    imagen_filtrada
+)
+
+rmse_gauss_background = calcular_rmse(
+    imagen_ideal,
+    imagen_filtrada,
+    mask_background
+)
+
+rmse_gauss_square = calcular_rmse(
+    imagen_ideal,
+    imagen_filtrada,
+    mask_square
+)
+
+rmse_gauss_circle = calcular_rmse(
+    imagen_ideal,
+    imagen_filtrada,
+    mask_circle
+)
+
+
+print("\nRMSE imagen ruido")
+print("Global:", rmse_ruido_global)
+print("Background:", rmse_ruido_background)
+print("Square:", rmse_ruido_square)
+print("Circle:", rmse_ruido_circle)
+
+print("\nRMSE Gaussiano sigma=1.3")
+print("Global:", rmse_gauss_global)
+print("Background:", rmse_gauss_background)
+print("Square:", rmse_gauss_square)
+print("Circle:", rmse_gauss_circle)
+
+
+check_rmse = rmse_gauss_global < rmse_ruido_global
+
+if check_rmse:
+    print("\nEl filtro reduce el RMSE global")
+else:
+    print("\nRevisar resultado del filtro")
+
+
+
+
+
 
 
 
