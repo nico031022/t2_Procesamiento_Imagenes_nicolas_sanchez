@@ -32,6 +32,49 @@ def calcular_rmse(imagen_ref, imagen_test, mask=None):
 
     return error
 
+def filtro_gaussiano_adaptativo(imagen, mapa_sigma):
+
+    # radio para sigma mayor
+    sigma_max = np.max(mapa_sigma)
+    radio_max = int(np.ceil(3 * sigma_max))
+
+    # bordes symmetric
+    imagen_pad = np.pad(
+        imagen,
+        radio_max,
+        mode="symmetric"
+    )
+
+    imagen_salida = np.zeros_like(imagen)
+
+    # coordenadas kernel
+    x = np.arange(-radio_max, radio_max + 1)
+    y = np.arange(-radio_max, radio_max + 1)
+
+    xx, yy = np.meshgrid(x, y)
+
+    for fila in range(imagen.shape[0]):
+        for columna in range(imagen.shape[1]):
+
+            sigma_pixel = mapa_sigma[fila, columna]
+
+            kernel = np.exp(
+                -(xx**2 + yy**2) / (2 * sigma_pixel**2)
+            )
+
+            kernel = kernel / np.sum(kernel)
+
+            region = imagen_pad[
+                fila:fila + 2 * radio_max + 1,
+                columna:columna + 2 * radio_max + 1
+            ]
+
+            valor = np.sum(region * kernel)
+
+            imagen_salida[fila, columna] = valor
+
+    return imagen_salida
+
 
 tamano = 256
 imagen_ideal = np.ones((tamano, tamano)) * 0.15
@@ -365,6 +408,17 @@ print("Background:", sigma_background)
 print("Square:", sigma_square)
 print("Circle:", sigma_circle)
 
+# filtro adaptativo
+imagen_adaptativa = filtro_gaussiano_adaptativo(
+    imagen_ruido,
+    sigma_map
+)
+
+print("\nFiltro adaptativo")
+print("Sigma minimo:", np.min(sigma_map))
+print("Sigma maximo:", np.max(sigma_map))
+print("Tamano imagen:", imagen_adaptativa.shape)
+
 
 plt.figure(figsize=(10, 8))
 
@@ -593,6 +647,55 @@ plt.tight_layout()
 
 plt.savefig(
     "resultados/pregunta1/funcion_sigma.png",
+    dpi=150
+)
+
+plt.show()
+
+# mostrar filtro adaptativo
+plt.figure(figsize=(13, 4))
+
+plt.subplot(1, 3, 1)
+plt.imshow(
+    imagen_ruido,
+    cmap="gray",
+    vmin=0,
+    vmax=1
+)
+plt.title("Imagen con ruido")
+plt.axis("off")
+
+
+plt.subplot(1, 3, 2)
+mapa_plot = plt.imshow(
+    sigma_map,
+    cmap="viridis"
+)
+plt.title("Mapa sigma")
+plt.axis("off")
+
+plt.colorbar(
+    mapa_plot,
+    fraction=0.046,
+    pad=0.04
+)
+
+
+plt.subplot(1, 3, 3)
+plt.imshow(
+    imagen_adaptativa,
+    cmap="gray",
+    vmin=0,
+    vmax=1
+)
+plt.title("Filtro adaptativo")
+plt.axis("off")
+
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/filtro_adaptativo.png",
     dpi=150
 )
 
