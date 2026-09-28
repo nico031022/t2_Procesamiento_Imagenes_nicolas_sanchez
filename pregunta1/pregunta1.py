@@ -232,6 +232,8 @@ rmse_circle_values = [rmse_ruido_circle]
 
 for sigma in np.arange(0.1, 4.1, 0.1):
 
+    sigma = round(float(sigma), 1)
+
     kernel = crear_kernel_gaussiano(sigma)
 
     imagen_sigma = convolve2d(
@@ -323,6 +325,59 @@ if sigma_min_square == sigma_maximo:
 
 if sigma_min_circle == sigma_maximo:
     print("Revisar rango para circle")
+
+#----------------------
+
+# estimar intensidad local
+sigma_mu = 2.0
+
+kernel_mu = crear_kernel_gaussiano(sigma_mu)
+
+mu_local = convolve2d(
+    imagen_ruido,
+    kernel_mu,
+    mode="same",
+    boundary="symm"
+)
+
+# valores obtenidos del barrido
+intensidades_ref = [0.15, 0.45, 0.80]
+
+sigmas_ref = [
+    sigma_min_background,
+    sigma_min_square,
+    sigma_min_circle
+]
+# crear mapa sigma
+sigma_map = np.interp(
+    mu_local,
+    intensidades_ref,
+    sigmas_ref
+)
+
+# check intensidad local
+mu_background = np.mean(mu_local[mask_background])
+mu_square = np.mean(mu_local[mask_square])
+mu_circle = np.mean(mu_local[mask_circle])
+
+print("\nIntensidad local estimada")
+print("Background:", mu_background)
+print("Square:", mu_square)
+print("Circle:", mu_circle)
+
+
+sigma_background = np.mean(sigma_map[mask_background])
+sigma_square = np.mean(sigma_map[mask_square])
+sigma_circle = np.mean(sigma_map[mask_circle])
+
+print("\nSigma promedio del mapa")
+print("Background:", sigma_background)
+print("Square:", sigma_square)
+print("Circle:", sigma_circle)
+
+
+
+
 
 
 
@@ -493,6 +548,75 @@ plt.tight_layout()
 
 plt.savefig(
     "resultados/pregunta1/rmse_sigma.png",
+    dpi=150
+)
+
+plt.show()
+
+
+
+
+# mostrar mapas
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 3, 1)
+plt.imshow(imagen_ruido, cmap="gray", vmin=0, vmax=1)
+plt.title("Imagen con ruido")
+plt.axis("off")
+
+plt.subplot(1, 3, 2)
+plt.imshow(mu_local, cmap="gray", vmin=0, vmax=1)
+plt.title("Estimacion local")
+plt.axis("off")
+
+plt.subplot(1, 3, 3)
+imagen_sigma = plt.imshow(sigma_map, cmap="viridis")
+plt.title("Mapa sigma")
+plt.axis("off")
+
+plt.colorbar(
+    imagen_sigma,
+    fraction=0.046,
+    pad=0.04
+)
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/mapa_sigma.png",
+    dpi=150
+)
+
+plt.show()
+
+
+# mostrar funcion F
+mu_values = np.linspace(0.10, 0.90, 200)
+
+sigma_interpolado = np.interp(
+    mu_values,
+    intensidades_ref,
+    sigmas_ref
+)
+
+plt.figure(figsize=(7, 5))
+
+plt.plot(mu_values, sigma_interpolado)
+
+plt.scatter(
+    intensidades_ref,
+    sigmas_ref
+)
+
+plt.xlabel("Intensidad local")
+plt.ylabel("Sigma")
+plt.title("Funcion sigma = F(mu)")
+
+plt.grid(alpha=0.3)
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/funcion_sigma.png",
     dpi=150
 )
 
