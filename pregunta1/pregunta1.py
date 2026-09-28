@@ -3,6 +3,36 @@ import matplotlib.pyplot as plt
 from scipy.signal import convolve2d
 
 
+def crear_kernel_gaussiano(sigma):
+
+    # radio de 3 sigma
+    radio = int(np.ceil(3 * sigma))
+
+    x = np.arange(-radio, radio + 1)
+    y = np.arange(-radio, radio + 1)
+
+    xx, yy = np.meshgrid(x, y)
+
+    kernel = np.exp(-(xx**2 + yy**2) / (2 * sigma**2))
+
+    # normalizar
+    kernel = kernel / np.sum(kernel)
+
+    return kernel
+
+
+def calcular_rmse(imagen_ref, imagen_test, mask=None):
+
+    if mask is None:
+        diferencia = imagen_ref - imagen_test
+    else:
+        diferencia = imagen_ref[mask] - imagen_test[mask]
+
+    error = np.sqrt(np.mean(diferencia**2))
+
+    return error
+
+
 tamano = 256
 imagen_ideal = np.ones((tamano, tamano)) * 0.15
 
@@ -57,8 +87,6 @@ else:
     print("Revisar masks")
 
 
-
-
 # agregar ruido poisson
 N = 40
 seed_numero = 12
@@ -66,7 +94,6 @@ seed_numero = 12
 np.random.seed(seed_numero)
 
 imagen_ruido = np.random.poisson(N * imagen_ideal) / N
-
 
 
 # revisar media y varianza
@@ -88,32 +115,9 @@ print("Var square:", var_square)
 print("Var circle:", var_circle)
 
 
-
-
-
 print("Background:", count_background)
 print("Square:", count_square)
 print("Circle:", count_circle)
-
-
-
-
-def crear_kernel_gaussiano(sigma):
-
-    # radio de 3 sigma
-    radio = int(np.ceil(3 * sigma))
-
-    x = np.arange(-radio, radio + 1)
-    y = np.arange(-radio, radio + 1)
-
-    xx, yy = np.meshgrid(x, y)
-
-    kernel = np.exp(-(xx**2 + yy**2) / (2 * sigma**2))
-
-    # normalizar
-    kernel = kernel / np.sum(kernel)
-
-    return kernel
 
 
 # para probar kernel gaussiano
@@ -135,19 +139,6 @@ imagen_filtrada = convolve2d(
     boundary="symm"
 )
 
-
-
-
-def calcular_rmse(imagen_ref, imagen_test, mask=None):
-
-    if mask is None:
-        diferencia = imagen_ref - imagen_test
-    else:
-        diferencia = imagen_ref[mask] - imagen_test[mask]
-
-    error = np.sqrt(np.mean(diferencia**2))
-
-    return error
 
 # rmse imagen con ruido
 rmse_ruido_global = calcular_rmse(
@@ -218,7 +209,6 @@ if check_rmse:
     print("\nEl filtro reduce el RMSE global")
 else:
     print("\nRevisar resultado del filtro")
-
 
 
 # probar varios sigma
@@ -376,17 +366,6 @@ print("Square:", sigma_square)
 print("Circle:", sigma_circle)
 
 
-
-
-
-
-
-
-
-
-
-
-
 plt.figure(figsize=(10, 8))
 
 plt.subplot(2, 2, 1)
@@ -537,7 +516,6 @@ np.savetxt(
 )
 
 
-
 plt.xlabel("Sigma")
 plt.ylabel("RMSE")
 plt.title("RMSE segun sigma")
@@ -552,8 +530,6 @@ plt.savefig(
 )
 
 plt.show()
-
-
 
 
 # mostrar mapas
