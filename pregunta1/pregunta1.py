@@ -419,6 +419,137 @@ print("Sigma minimo:", np.min(sigma_map))
 print("Sigma maximo:", np.max(sigma_map))
 print("Tamano imagen:", imagen_adaptativa.shape)
 
+#--------------------------------------------------------
+# mejor filtro global
+kernel_best_global = crear_kernel_gaussiano(
+    sigma_min_global
+)
+
+imagen_best_global = convolve2d(
+    imagen_ruido,
+    kernel_best_global,
+    mode="same",
+    boundary="symm"
+)
+
+# rmse adaptativo
+rmse_adapt_global = calcular_rmse(
+    imagen_ideal,
+    imagen_adaptativa
+)
+
+rmse_adapt_background = calcular_rmse(
+    imagen_ideal,
+    imagen_adaptativa,
+    mask_background
+)
+
+rmse_adapt_square = calcular_rmse(
+    imagen_ideal,
+    imagen_adaptativa,
+    mask_square
+)
+
+rmse_adapt_circle = calcular_rmse(
+    imagen_ideal,
+    imagen_adaptativa,
+    mask_circle
+)
+
+# rmse mejor global
+rmse_best_global = calcular_rmse(
+    imagen_ideal,
+    imagen_best_global
+)
+
+rmse_best_background = calcular_rmse(
+    imagen_ideal,
+    imagen_best_global,
+    mask_background
+)
+
+rmse_best_square = calcular_rmse(
+    imagen_ideal,
+    imagen_best_global,
+    mask_square
+)
+
+rmse_best_circle = calcular_rmse(
+    imagen_ideal,
+    imagen_best_global,
+    mask_circle
+)
+
+
+print("\nComparacion final")
+
+print("\nSin filtro")
+print("Global:", rmse_ruido_global)
+print("Background:", rmse_ruido_background)
+print("Square:", rmse_ruido_square)
+print("Circle:", rmse_ruido_circle)
+
+print("\nMejor Gaussiano global")
+print("Sigma:", sigma_min_global)
+print("Global:", rmse_best_global)
+print("Background:", rmse_best_background)
+print("Square:", rmse_best_square)
+print("Circle:", rmse_best_circle)
+
+print("\nGaussiano adaptativo")
+print("Global:", rmse_adapt_global)
+print("Background:", rmse_adapt_background)
+print("Square:", rmse_adapt_square)
+print("Circle:", rmse_adapt_circle)
+
+
+
+# diferencia adaptativo - global
+dif_global = rmse_adapt_global - rmse_best_global
+dif_background = rmse_adapt_background - rmse_best_background
+dif_square = rmse_adapt_square - rmse_best_square
+dif_circle = rmse_adapt_circle - rmse_best_circle
+
+print("\nDiferencia adaptativo - global")
+print("Global:", dif_global)
+print("Background:", dif_background)
+print("Square:", dif_square)
+print("Circle:", dif_circle)
+
+
+
+datos_comparacion = np.array([
+    [
+        rmse_ruido_global,
+        rmse_ruido_background,
+        rmse_ruido_square,
+        rmse_ruido_circle
+    ],
+    [
+        rmse_best_global,
+        rmse_best_background,
+        rmse_best_square,
+        rmse_best_circle
+    ],
+    [
+        rmse_adapt_global,
+        rmse_adapt_background,
+        rmse_adapt_square,
+        rmse_adapt_circle
+    ]
+])
+
+np.savetxt(
+    "resultados/pregunta1/comparacion_rmse.csv",
+    datos_comparacion,
+    delimiter=",",
+    header="global,background,square,circle",
+    comments=""
+)
+#-----------------------------------------------------
+
+
+
 
 plt.figure(figsize=(10, 8))
 
@@ -696,6 +827,68 @@ plt.tight_layout()
 
 plt.savefig(
     "resultados/pregunta1/filtro_adaptativo.png",
+    dpi=150
+)
+
+plt.show()
+
+
+
+
+# comparacion final
+plt.figure(figsize=(14, 4))
+
+plt.subplot(1, 4, 1)
+plt.imshow(
+    imagen_ideal,
+    cmap="gray",
+    vmin=0,
+    vmax=1
+)
+plt.title("Imagen ideal")
+plt.axis("off")
+
+
+plt.subplot(1, 4, 2)
+plt.imshow(
+    imagen_ruido,
+    cmap="gray",
+    vmin=0,
+    vmax=1
+)
+plt.title("Imagen con ruido")
+plt.axis("off")
+
+
+plt.subplot(1, 4, 3)
+plt.imshow(
+    imagen_best_global,
+    cmap="gray",
+    vmin=0,
+    vmax=1
+)
+plt.title(
+    "Gaussiano global sigma="
+    + str(sigma_min_global)
+)
+plt.axis("off")
+
+
+plt.subplot(1, 4, 4)
+plt.imshow(
+    imagen_adaptativa,
+    cmap="gray",
+    vmin=0,
+    vmax=1
+)
+plt.title("Gaussiano adaptativo")
+plt.axis("off")
+
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/comparacion_global_adaptativo.png",
     dpi=150
 )
 
