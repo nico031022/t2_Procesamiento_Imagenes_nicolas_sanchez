@@ -549,6 +549,108 @@ np.savetxt(
 #-----------------------------------------------------
 
 
+# perfil horizontal
+fila_perfil = centro_y
+
+x_perfil = np.arange(tamano)
+
+perfil_ideal = imagen_ideal[fila_perfil, :]
+perfil_ruido = imagen_ruido[fila_perfil, :]
+perfil_global = imagen_best_global[fila_perfil, :]
+perfil_adaptativo = imagen_adaptativa[fila_perfil, :]
+
+perfil_sigma = sigma_map[fila_perfil, :]
+
+
+# check sigma cerca de bordes
+print("\nSigma cerca de bordes")
+
+print("x=60:", perfil_sigma[60])
+print("x=64:", perfil_sigma[64])
+print("x=68:", perfil_sigma[68])
+
+print("x=92:", perfil_sigma[92])
+print("x=96:", perfil_sigma[96])
+print("x=100:", perfil_sigma[100])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 plt.figure(figsize=(10, 8))
@@ -889,6 +991,166 @@ plt.tight_layout()
 
 plt.savefig(
     "resultados/pregunta1/comparacion_global_adaptativo.png",
+    dpi=150
+)
+
+plt.show()
+
+
+#---------------------------------------
+# perfil de intensidad
+plt.figure(figsize=(11, 5))
+
+plt.plot(
+    x_perfil,
+    perfil_ideal,
+    label="Ideal"
+)
+
+plt.plot(
+    x_perfil,
+    perfil_ruido,
+    label="Ruido",
+    alpha=0.5
+)
+
+plt.plot(
+    x_perfil,
+    perfil_global,
+    label="Global"
+)
+
+plt.plot(
+    x_perfil,
+    perfil_adaptativo,
+    label="Adaptativo"
+)
+
+
+# bordes
+plt.axvline(64, linestyle="--", alpha=0.4)
+plt.axvline(96, linestyle="--", alpha=0.4)
+plt.axvline(160, linestyle="--", alpha=0.4)
+plt.axvline(192, linestyle="--", alpha=0.4)
+
+
+plt.xlabel("Posicion x")
+plt.ylabel("Intensidad")
+plt.title("Perfil horizontal por el centro")
+
+plt.legend()
+plt.grid(alpha=0.3)
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/perfil_bordes.png",
+    dpi=150
+)
+
+plt.show()
+
+# perfil sigma
+plt.figure(figsize=(11, 4))
+
+plt.plot(
+    x_perfil,
+    perfil_sigma
+)
+
+plt.axvline(64, linestyle="--", alpha=0.4)
+plt.axvline(96, linestyle="--", alpha=0.4)
+plt.axvline(160, linestyle="--", alpha=0.4)
+plt.axvline(192, linestyle="--", alpha=0.4)
+
+plt.xlabel("Posicion x")
+plt.ylabel("Sigma")
+plt.title("Perfil del mapa sigma")
+
+plt.grid(alpha=0.3)
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/perfil_sigma.png",
+    dpi=150
+)
+
+plt.show()
+
+# zoom de bordes
+plt.figure(figsize=(12, 4))
+
+
+# borde background-square
+plt.subplot(1, 2, 1)
+
+plt.plot(
+    x_perfil,
+    perfil_ideal,
+    label="Ideal"
+)
+
+plt.plot(
+    x_perfil,
+    perfil_global,
+    label="Global"
+)
+
+plt.plot(
+    x_perfil,
+    perfil_adaptativo,
+    label="Adaptativo"
+)
+
+plt.xlim(50, 80)
+plt.ylim(0.05, 0.55)
+
+plt.axvline(64, linestyle="--", alpha=0.4)
+
+plt.title("Borde background-square")
+plt.xlabel("Posicion x")
+plt.ylabel("Intensidad")
+plt.grid(alpha=0.3)
+
+
+# borde square-circle
+plt.subplot(1, 2, 2)
+
+plt.plot(
+    x_perfil,
+    perfil_ideal,
+    label="Ideal"
+)
+
+plt.plot(
+    x_perfil,
+    perfil_global,
+    label="Global"
+)
+
+plt.plot(
+    x_perfil,
+    perfil_adaptativo,
+    label="Adaptativo"
+)
+
+plt.xlim(82, 110)
+plt.ylim(0.30, 0.90)
+
+plt.axvline(96, linestyle="--", alpha=0.4)
+
+plt.title("Borde square-circle")
+plt.xlabel("Posicion x")
+plt.ylabel("Intensidad")
+plt.grid(alpha=0.3)
+
+plt.legend()
+
+plt.tight_layout()
+
+plt.savefig(
+    "resultados/pregunta1/zoom_bordes.png",
     dpi=150
 )
 
