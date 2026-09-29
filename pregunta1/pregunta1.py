@@ -573,19 +573,125 @@ print("x=92:", perfil_sigma[92])
 print("x=96:", perfil_sigma[96])
 print("x=100:", perfil_sigma[100])
 
+#------------------------------
+
+# pixeles representativos
+pixel_background = (32, 32)
+pixel_square = (80, 80)
+pixel_circle = (128, 128)
 
 
+# mismo soporte de filtro adaptativo
+sigma_max = np.max(sigma_map)
+radio_max = int(np.ceil(3 * sigma_max))
+
+x_kernel = np.arange(-radio_max, radio_max + 1)
+y_kernel = np.arange(-radio_max, radio_max + 1)
+
+xx_kernel, yy_kernel = np.meshgrid(
+    x_kernel,
+    y_kernel
+)
+
+# pixel background
+fila = pixel_background[0]
+columna = pixel_background[1]
+
+mu_pixel_background = mu_local[fila, columna]
+sigma_pixel_background = sigma_map[fila, columna]
+
+kernel_background = np.exp(
+    -(xx_kernel**2 + yy_kernel**2) /
+    (2 * sigma_pixel_background**2)
+)
+
+kernel_background = (
+    kernel_background /
+    np.sum(kernel_background)
+)
+
+# pixel square
+fila = pixel_square[0]
+columna = pixel_square[1]
+
+mu_pixel_square = mu_local[fila, columna]
+sigma_pixel_square = sigma_map[fila, columna]
+
+kernel_square = np.exp(
+    -(xx_kernel**2 + yy_kernel**2) /
+    (2 * sigma_pixel_square**2)
+)
+
+kernel_square = (
+    kernel_square /
+    np.sum(kernel_square)
+)
+
+# pixel circle
+fila = pixel_circle[0]
+columna = pixel_circle[1]
+
+mu_pixel_circle = mu_local[fila, columna]
+sigma_pixel_circle = sigma_map[fila, columna]
+
+kernel_circle = np.exp(
+    -(xx_kernel**2 + yy_kernel**2) /
+    (2 * sigma_pixel_circle**2)
+)
+
+kernel_circle = (
+    kernel_circle /
+    np.sum(kernel_circle)
+)
 
 
+print("\nPixeles representativos")
+
+print("\nBackground", pixel_background)
+print("mu =", mu_pixel_background)
+print("sigma =", sigma_pixel_background)
+print("kernel shape =", kernel_background.shape)
+print("kernel suma =", np.sum(kernel_background))
+
+print("\nSquare", pixel_square)
+print("mu =", mu_pixel_square)
+print("sigma =", sigma_pixel_square)
+print("kernel shape =", kernel_square.shape)
+print("kernel suma =", np.sum(kernel_square))
+
+print("\nCircle", pixel_circle)
+print("mu =", mu_pixel_circle)
+print("sigma =", sigma_pixel_circle)
+print("kernel shape =", kernel_circle.shape)
+print("kernel suma =", np.sum(kernel_circle))
 
 
+print("\nKernel background")
+print(
+    np.array2string(
+        kernel_background,
+        precision=5,
+        suppress_small=True
+    )
+)
 
+print("\nKernel square")
+print(
+    np.array2string(
+        kernel_square,
+        precision=5,
+        suppress_small=True
+    )
+)
 
-
-
-
-
-
+print("\nKernel circle")
+print(
+    np.array2string(
+        kernel_circle,
+        precision=5,
+        suppress_small=True
+    )
+)
 
 
 
@@ -1155,3 +1261,76 @@ plt.savefig(
 )
 
 plt.show()
+#-------------------
+
+
+# kernels de pixeles representativos
+plt.figure(figsize=(12, 4))
+
+max_kernel = max(
+    np.max(kernel_background),
+    np.max(kernel_square),
+    np.max(kernel_circle)
+)
+
+
+plt.subplot(1, 3, 1)
+plt.imshow(
+    kernel_background,
+    cmap="viridis",
+    vmin=0,
+    vmax=max_kernel
+)
+plt.title(
+    "Background\nsigma="
+    + str(round(sigma_pixel_background, 3))
+)
+plt.axis("off")
+
+
+plt.subplot(1, 3, 2)
+plt.imshow(
+    kernel_square,
+    cmap="viridis",
+    vmin=0,
+    vmax=max_kernel
+)
+plt.title(
+    "Square\nsigma="
+    + str(round(sigma_pixel_square, 3))
+)
+plt.axis("off")
+
+
+plt.subplot(1, 3, 3)
+imagen_kernel = plt.imshow(
+    kernel_circle,
+    cmap="viridis",
+    vmin=0,
+    vmax=max_kernel
+)
+plt.title(
+    "Circle\nsigma="
+    + str(round(sigma_pixel_circle, 3))
+)
+plt.axis("off")
+
+
+plt.colorbar(
+    imagen_kernel,
+    ax=plt.gcf().axes,
+    fraction=0.025,
+    pad=0.02
+)
+
+plt.savefig(
+    "resultados/pregunta1/kernels_pixeles.png",
+    dpi=150,
+    bbox_inches="tight"
+)
+
+plt.show()
+
+
+
+
