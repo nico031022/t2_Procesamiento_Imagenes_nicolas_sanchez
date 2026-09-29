@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import convolve2d
 
+# funciones
 
 def crear_kernel_gaussiano(sigma):
 
@@ -75,6 +76,10 @@ def filtro_gaussiano_adaptativo(imagen, mapa_sigma):
 
     return imagen_salida
 
+# -------------------------------------------------------------
+
+
+# imagen ideal y masks
 
 tamano = 256
 imagen_ideal = np.ones((tamano, tamano)) * 0.15
@@ -129,6 +134,14 @@ if check:
 else:
     print("Revisar masks")
 
+print("Background:", count_background)
+print("Square:", count_square)
+print("Circle:", count_circle)
+
+# ------------------------------------------------------------------
+
+
+#  ruido poisson
 
 # agregar ruido poisson
 N = 40
@@ -157,10 +170,10 @@ print("Var background:", var_background)
 print("Var square:", var_square)
 print("Var circle:", var_circle)
 
+# -------------------------------------------------------------------------
 
-print("Background:", count_background)
-print("Square:", count_square)
-print("Circle:", count_circle)
+
+#  prueba filtro gaussiano
 
 
 # para probar kernel gaussiano
@@ -181,6 +194,11 @@ imagen_filtrada = convolve2d(
     mode="same",
     boundary="symm"
 )
+
+# -----------------------------------------------------
+
+
+#  rmse y barrido de sigma
 
 
 # rmse imagen con ruido
@@ -359,7 +377,28 @@ if sigma_min_square == sigma_maximo:
 if sigma_min_circle == sigma_maximo:
     print("Revisar rango para circle")
 
-#----------------------
+datos_rmse = np.column_stack((
+    sigma_values,
+    rmse_global_values,
+    rmse_background_values,
+    rmse_square_values,
+    rmse_circle_values
+))
+
+np.savetxt(
+    "resultados/pregunta1/rmse_sigma.csv",
+    datos_rmse,
+    delimiter=",",
+    header="sigma,global,background,square,circle",
+    comments=""
+)
+
+# -------------------------------------------------------
+
+
+# mapa adaptativo de sigma
+
+
 
 # estimar intensidad local
 sigma_mu = 2.0
@@ -408,6 +447,10 @@ print("Background:", sigma_background)
 print("Square:", sigma_square)
 print("Circle:", sigma_circle)
 
+# ------------------------------------------------------
+
+
+
 # filtro adaptativo
 imagen_adaptativa = filtro_gaussiano_adaptativo(
     imagen_ruido,
@@ -419,7 +462,12 @@ print("Sigma minimo:", np.min(sigma_map))
 print("Sigma maximo:", np.max(sigma_map))
 print("Tamano imagen:", imagen_adaptativa.shape)
 
-#--------------------------------------------------------
+# -------------------------------------------------------------
+
+
+# comparacion global y adaptativo
+
+
 # mejor filtro global
 kernel_best_global = crear_kernel_gaussiano(
     sigma_min_global
@@ -503,7 +551,6 @@ print("Square:", rmse_adapt_square)
 print("Circle:", rmse_adapt_circle)
 
 
-
 # diferencia adaptativo - global
 dif_global = rmse_adapt_global - rmse_best_global
 dif_background = rmse_adapt_background - rmse_best_background
@@ -515,7 +562,6 @@ print("Global:", dif_global)
 print("Background:", dif_background)
 print("Square:", dif_square)
 print("Circle:", dif_circle)
-
 
 
 datos_comparacion = np.array([
@@ -546,7 +592,12 @@ np.savetxt(
     header="global,background,square,circle",
     comments=""
 )
-#-----------------------------------------------------
+
+# -----------------------------------------------------------------
+
+
+# analisis de bordes
+
 
 
 # perfil horizontal
@@ -573,7 +624,9 @@ print("x=92:", perfil_sigma[92])
 print("x=96:", perfil_sigma[96])
 print("x=100:", perfil_sigma[100])
 
-#------------------------------
+# --------------------------------------------------
+
+
 
 # pixeles representativos
 pixel_background = (32, 32)
@@ -693,72 +746,13 @@ print(
     )
 )
 
+# ---------------------------------
 
 
+# visua
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# imagen y masks
 plt.figure(figsize=(10, 8))
 
 plt.subplot(2, 2, 1)
@@ -892,23 +886,6 @@ plt.scatter(
     s=70
 )
 
-datos_rmse = np.column_stack((
-    sigma_values,
-    rmse_global_values,
-    rmse_background_values,
-    rmse_square_values,
-    rmse_circle_values
-))
-
-np.savetxt(
-    "resultados/pregunta1/rmse_sigma.csv",
-    datos_rmse,
-    delimiter=",",
-    header="sigma,global,background,square,circle",
-    comments=""
-)
-
-
 plt.xlabel("Sigma")
 plt.ylabel("RMSE")
 plt.title("RMSE segun sigma")
@@ -925,7 +902,7 @@ plt.savefig(
 plt.show()
 
 
-# mostrar mapas
+# mapas
 plt.figure(figsize=(12, 4))
 
 plt.subplot(1, 3, 1)
@@ -959,7 +936,7 @@ plt.savefig(
 plt.show()
 
 
-# mostrar funcion F
+# funcion F
 mu_values = np.linspace(0.10, 0.90, 200)
 
 sigma_interpolado = np.interp(
@@ -991,7 +968,7 @@ plt.savefig(
 
 plt.show()
 
-# mostrar filtro adaptativo
+# filtro adaptativo
 plt.figure(figsize=(13, 4))
 
 plt.subplot(1, 3, 1)
@@ -1039,8 +1016,6 @@ plt.savefig(
 )
 
 plt.show()
-
-
 
 
 # comparacion final
@@ -1103,7 +1078,9 @@ plt.savefig(
 plt.show()
 
 
-#---------------------------------------
+#-------------------------------------------------------------------
+
+
 # perfil de intensidad
 plt.figure(figsize=(11, 5))
 
@@ -1261,7 +1238,7 @@ plt.savefig(
 )
 
 plt.show()
-#-------------------
+#-------------------------------------------------
 
 
 # kernels de pixeles representativos
@@ -1330,7 +1307,3 @@ plt.savefig(
 )
 
 plt.show()
-
-
-
-
